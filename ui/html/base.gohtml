@@ -1,0 +1,33 @@
+{{/*
+Базовый (или мастер) шаблон, содержащий общий контент, который затем мы можем составить с учетом разметки для отдельных страниц.
+
+1. действие {{define "base"}}...{{end}} используется в качестве оболочки для определения отдельного именованного шаблона с именем base.
+    Он содержит контент, который мы хотим отображать на каждой странице.
+
+2. действия {{template "title" .}} и {{template "main" .}} используются, чтобы указать, что мы хотим вызвать другие именованные шаблоны (называемые title и main) в определенном месте HTML.
+    Точка в конце {{template "title" .}} действия представляет любые динамические данные, которые вы хотите передать вызываемому шаблону.
+*/}}
+
+{{define "base"}}
+    <!doctype html>
+    <html lang='en'>
+    <head>
+        <meta charset='utf-8'>
+        <title>{{template "title" .}} - Snippetbox</title>
+        <link rel='stylesheet' href='/static/css/main.css'>
+        <link rel='shortcut icon' href='/static/img/favicon.ico' type='image/x-icon'>
+        <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700'>
+    </head>
+    <body>
+    <header>
+        <h1><a href='/'>Snippetbox</a></h1>
+    </header>
+    {{template "nav" .}}
+    <main>
+        {{template "main" .}}
+    </main>
+    <footer>Powered by <a href='https://golang.org/'>Go</a></footer>
+    <script src='/static/js/main.js' type='text/javascript'></script>
+    </body>
+    </html>
+{{end}}
