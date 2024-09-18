@@ -12,7 +12,7 @@ func (a *App) serverError(writer http.ResponseWriter, request *http.Request, err
 		err.Error(),
 		slog.String("method", request.Method),
 		slog.String("uri", request.URL.RequestURI()),
-		slog.String("trace", string(debug.Stack())), // #3.4 Дополнительная информация
+		slog.String("trace", string(debug.Stack())),
 	)
 	http.Error(
 		writer,

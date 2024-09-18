@@ -1,11 +1,14 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"snippetbox/internal/config"
+)
 
 // #3.5 routes Изолирует создание маршрутизатора
-func (a *App) routes(config Config) *http.ServeMux {
+func (a *App) routes(cfg config.Config) *http.ServeMux {
 	var mux = http.NewServeMux()
-	var fileServer = http.FileServer(http.Dir(config.staticDir))
+	var fileServer = http.FileServer(http.Dir(cfg.App.StaticDir))
 
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 

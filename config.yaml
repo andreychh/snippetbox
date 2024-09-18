@@ -1,0 +1,17 @@
+database:
+  user: web
+  password: pass
+  protocol: tcp
+  host: 0.0.0.0
+  port: 3306
+  name: snippetbox
+  params:
+    parseTime: true
+app:
+  host:
+  port: 4000
+  staticDir: ./ui/static/
+logging:
+  level: info
+
+
