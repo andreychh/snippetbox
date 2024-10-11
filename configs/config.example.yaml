@@ -1,0 +1,15 @@
+envName:
+database:
+  user:
+  password:
+  protocol:
+  host:
+  port:
+  name:
+  params:
+    parseTime:
+app:
+  host:
+  port:
+logging:
+  level:

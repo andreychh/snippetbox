@@ -9,25 +9,26 @@ import (
 )
 
 type Config struct {
-	DB  database `yaml:"database"`
-	App app      `yaml:"app"`
-	Log logging  `yaml:"logging"`
+	EnvName  string   `yaml:"envName"`
+	Database database `yaml:"database"`
+	App      app      `yaml:"app"`
+	Logging  logging  `yaml:"logging"`
 }
 
-// Load #me загружает конфигурацию из YAML-файла
-func Load(configPath string) (*Config, error) {
-	var data, err = os.ReadFile(configPath)
+func MustLoad(configPath string) *Config {
+	config := &Config{}
+
+	data, err := os.ReadFile(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("reading file: %w", err)
+		panic(fmt.Sprintf("reading file: %v", err))
 	}
 
-	var config Config
-	err = yaml.Unmarshal(data, &config)
+	err = yaml.Unmarshal(data, config)
 	if err != nil {
-		return nil, fmt.Errorf("unmarshaling: %w", err)
+		panic(fmt.Sprintf("unmarshaling: %v", err))
 	}
 
-	return &config, nil
+	return config
 }
 
 type database struct {
@@ -40,8 +41,6 @@ type database struct {
 	Params   map[string]string `yaml:"params"`
 }
 
-// DSN #me формирует dataSourceName
-// Формат строки подключения (dsn): user:password@protocol(host:port)/dbname?param=value
 func (db database) DSN() string {
 	var dsn = fmt.Sprintf("%s:%s@%s(%s:%d)/%s",
 		db.User, db.Password, db.Protocol, db.Host, db.Port, db.Name,
@@ -60,9 +59,8 @@ func (db database) DSN() string {
 }
 
 type app struct {
-	Host      string `yaml:"host"`
-	Port      int    `yaml:"port"`
-	StaticDir string `yaml:"staticDir"`
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
 func (a app) Addr() string {
