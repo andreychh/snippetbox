@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"snippetbox/internal/domain"
-	"snippetbox/internal/storage"
+
+	"github.com/andreychh/snippetbox/internal/domain"
+	"github.com/andreychh/snippetbox/internal/storage"
 
 	_ "github.com/go-sql-driver/mysql"
 )

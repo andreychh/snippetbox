@@ -3,8 +3,9 @@ package application
 import (
 	"log/slog"
 	"net/http"
-	"snippetbox/internal/storage"
-	"snippetbox/internal/templates"
+
+	"github.com/andreychh/snippetbox/internal/storage"
+	"github.com/andreychh/snippetbox/internal/templates"
 )
 
 type App struct {

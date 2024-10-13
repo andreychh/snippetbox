@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"snippetbox/internal/domain"
-	"snippetbox/internal/storage"
-	"snippetbox/internal/templates"
 	"strconv"
+
+	"github.com/andreychh/snippetbox/internal/domain"
+	"github.com/andreychh/snippetbox/internal/storage"
+	"github.com/andreychh/snippetbox/internal/templates"
 )
 
 func (a *App) home(writer http.ResponseWriter, request *http.Request) {

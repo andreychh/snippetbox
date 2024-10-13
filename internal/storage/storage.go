@@ -3,7 +3,8 @@ package storage
 import (
 	"errors"
 	"io"
-	"snippetbox/internal/domain"
+
+	"github.com/andreychh/snippetbox/internal/domain"
 )
 
 var (

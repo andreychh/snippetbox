@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"os"
 
-	"snippetbox/internal/application"
-	cfg "snippetbox/internal/config"
-	log "snippetbox/internal/logger"
-	"snippetbox/internal/storage/mysql"
-	"snippetbox/internal/templates"
+	"github.com/andreychh/snippetbox/internal/application"
+	cfg "github.com/andreychh/snippetbox/internal/config"
+	log "github.com/andreychh/snippetbox/internal/logger"
+	"github.com/andreychh/snippetbox/internal/storage/mysql"
+	"github.com/andreychh/snippetbox/internal/templates"
 )
 
 func main() {

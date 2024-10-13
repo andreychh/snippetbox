@@ -2,8 +2,9 @@ package templates
 
 import (
 	"html/template"
-	"snippetbox/internal/domain"
 	"time"
+
+	"github.com/andreychh/snippetbox/internal/domain"
 )
 
 type TemplateData struct {
