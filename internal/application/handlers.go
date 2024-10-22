@@ -12,8 +12,6 @@ import (
 )
 
 func (a *App) home(writer http.ResponseWriter, request *http.Request) {
-	writer.Header().Add("Server", "Go")
-
 	var snippets, err = a.storage.Snippets().Latest()
 	if err != nil {
 		a.internalServerError(writer, request, err)

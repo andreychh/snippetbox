@@ -6,6 +6,8 @@ import (
 
 	"github.com/andreychh/snippetbox/internal/storage"
 	"github.com/andreychh/snippetbox/internal/templates"
+
+	"github.com/justinas/alice"
 )
 
 type App struct {
@@ -22,7 +24,7 @@ func New(logger *slog.Logger, storage storage.Storage, templateRenderer template
 	}
 }
 
-func (a *App) Routes() *http.ServeMux {
+func (a *App) Routes() http.Handler {
 	var mux = http.NewServeMux()
 	var fileServer = http.FileServer(http.Dir("./web/static/"))
 
@@ -33,5 +35,7 @@ func (a *App) Routes() *http.ServeMux {
 	mux.HandleFunc("GET /snippet/create", a.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", a.snippetCreatePost)
 
-	return mux
+	var middlewareChain = alice.New(a.recoverPanic, a.logRequest, a.addHeaders)
+
+	return middlewareChain.Then(mux)
 }
