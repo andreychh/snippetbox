@@ -20,9 +20,7 @@ func (a *App) home(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	var data = templates.NewTemplateData()
-	data.Snippets = snippets
-
+	var data = templates.NewTemplateData(templates.WithSnippets(snippets))
 	err = a.templateRenderer.HomePage(writer, data)
 	if err != nil {
 		a.internalServerError(writer, request, err)
@@ -48,9 +46,7 @@ func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	var data = templates.NewTemplateData()
-	data.Snippet = snippet
-
+	var data = templates.NewTemplateData(templates.WithSnippet(snippet))
 	err = a.templateRenderer.SnippetViewPage(writer, data)
 	if err != nil {
 		a.internalServerError(writer, request, err)
