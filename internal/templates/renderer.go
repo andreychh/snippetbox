@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"net/http"
 	"path/filepath"
 )
 
@@ -26,7 +25,7 @@ func NewRenderer() (Renderer, error) {
 }
 
 func newTemplateCache() (TemplateCache, error) {
-	var cache = make(TemplateCache)
+	var cache = TemplateCache{}
 	var pages, err = filepath.Glob("./web/html/pages/*.gohtml")
 	if err != nil {
 		return nil, fmt.Errorf("globbing page templates: %w", err)
@@ -34,8 +33,9 @@ func newTemplateCache() (TemplateCache, error) {
 
 	for _, page := range pages {
 		var name = filepath.Base(page)
+		var templateSet = template.New(name).Funcs(functions)
 
-		var templateSet, err = template.New(name).Funcs(functions).ParseFiles("./web/html/base.gohtml")
+		templateSet, err = templateSet.ParseFiles("./web/html/base.gohtml")
 		if err != nil {
 			return nil, fmt.Errorf("parsing base template: %w", err)
 		}
@@ -56,27 +56,25 @@ func newTemplateCache() (TemplateCache, error) {
 	return cache, nil
 }
 
-func (r Renderer) HomePage(writer http.ResponseWriter, data TemplateData) error {
-	return r.render(writer, http.StatusOK, "home.gohtml", data)
+func (r Renderer) HomePage(data TemplateData) ([]byte, error) {
+	return r.renderTemplate("home.gohtml", data)
 }
 
-func (r Renderer) SnippetViewPage(writer http.ResponseWriter, data TemplateData) error {
-	return r.render(writer, http.StatusOK, "view.gohtml", data)
+func (r Renderer) SnippetViewPage(data TemplateData) ([]byte, error) {
+	return r.renderTemplate("view.gohtml", data)
 }
 
-func (r Renderer) render(writer http.ResponseWriter, status int, page string, data TemplateData) error {
+func (r Renderer) renderTemplate(page string, data TemplateData) ([]byte, error) {
 	var templateSet, exists = r.templateCache[page]
 	if !exists {
-		return ErrNoTemplate
+		return nil, ErrNoTemplate
 	}
 
 	var buffer bytes.Buffer
 	var err = templateSet.ExecuteTemplate(&buffer, "base", data)
 	if err != nil {
-		return fmt.Errorf("executing template %s: %w", page, err)
+		return nil, fmt.Errorf("executing template %s: %w", page, err)
 	}
 
-	writer.WriteHeader(status)
-	_, err = writer.Write(buffer.Bytes())
-	return err
+	return buffer.Bytes(), nil
 }
