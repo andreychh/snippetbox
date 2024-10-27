@@ -68,6 +68,10 @@ func (r Renderer) SnippetCreatePage(data TemplateData) ([]byte, error) {
 	return r.renderTemplate("create.gohtml", data)
 }
 
+func (r Renderer) NotFoundPage(data TemplateData) ([]byte, error) {
+	return r.renderTemplate("not_found.gohtml", data)
+}
+
 func (r Renderer) renderTemplate(page string, data TemplateData) ([]byte, error) {
 	var templateSet, exists = r.templateCache[page]
 	if !exists {

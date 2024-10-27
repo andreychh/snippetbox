@@ -1,16 +1,19 @@
 package application
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
+
+	"github.com/andreychh/snippetbox/internal/templates"
 )
 
 func (a *App) internalServerError(writer http.ResponseWriter, request *http.Request, err error) {
-	a.logger.Error(
-		err.Error(),
+	a.logger.Error("internal server error",
+		slog.String("error", err.Error()),
 		slog.String("method", request.Method),
-		slog.String("uri", request.URL.RequestURI()),
+		slog.String("uri", request.RequestURI),
 		slog.String("trace", string(debug.Stack())),
 	)
 	http.Error(
@@ -20,16 +23,24 @@ func (a *App) internalServerError(writer http.ResponseWriter, request *http.Requ
 	)
 }
 
-func (a *App) notFound(writer http.ResponseWriter, request *http.Request, err error) {
-	a.logger.Error(
-		err.Error(),
+func (a *App) notFound(writer http.ResponseWriter, request *http.Request) {
+	a.logger.Error("page not found",
 		slog.String("method", request.Method),
-		slog.String("uri", request.URL.RequestURI()),
-		slog.String("trace", string(debug.Stack())),
+		slog.String("uri", request.RequestURI),
 	)
-	http.Error(
-		writer,
-		http.StatusText(http.StatusNotFound),
-		http.StatusNotFound,
-	)
+
+	var pageContent, err = a.templateRenderer.NotFoundPage(templates.NewTemplateData())
+	if err != nil {
+		err = fmt.Errorf("rendering not-found page: %w", err)
+		a.internalServerError(writer, request, err)
+		return
+	}
+
+	writer.WriteHeader(http.StatusNotFound)
+	n, err := writer.Write(pageContent)
+	if err != nil {
+		err = fmt.Errorf("writing response (bytes written: %d): %w", n, err)
+		a.internalServerError(writer, request, err)
+		return
+	}
 }

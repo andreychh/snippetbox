@@ -3,6 +3,7 @@ package application
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/andreychh/snippetbox/internal/domain"
@@ -39,7 +40,8 @@ func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
 	var id, err = domain.ParseSnippetID(request)
 	if err != nil {
 		err = fmt.Errorf("parsing snippet ID: %w", err)
-		a.notFound(writer, request, err)
+		a.logger.Error("error occurred", slog.String("error", err.Error()))
+		a.notFound(writer, request)
 		return
 	}
 
@@ -47,7 +49,8 @@ func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		err = fmt.Errorf("fetching snippet by ID %d: %w", id, err)
 		if errors.Is(err, storage.ErrNoRecord) {
-			a.notFound(writer, request, err)
+			a.logger.Error("error occurred", slog.String("error", err.Error()))
+			a.notFound(writer, request)
 		} else {
 			a.internalServerError(writer, request, err)
 		}

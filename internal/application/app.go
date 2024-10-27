@@ -30,6 +30,7 @@ func (a *App) Routes() http.Handler {
 
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
+	mux.HandleFunc("/", a.notFound)
 	mux.HandleFunc("/{$}", a.home)
 	mux.HandleFunc("/snippet/view/{id}", a.snippetView)
 	mux.HandleFunc("GET /snippet/create", a.snippetCreate)
