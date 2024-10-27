@@ -1,6 +1,9 @@
 package domain
 
 import (
+	"fmt"
+	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -22,4 +25,16 @@ func NewSnippet(title string, content string, expirationDays int) Snippet {
 		Created: currentTime,
 		Expires: expirationTime,
 	}
+}
+
+func ParseSnippetID(request *http.Request) (int64, error) {
+	var idStr = request.PathValue("id")
+	var id, err = strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("parsing id '%s': %w", idStr, err)
+	}
+	if id < 1 {
+		return 0, fmt.Errorf("snippet id '%d' must be a positive integer", id)
+	}
+	return id, nil
 }

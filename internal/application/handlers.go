@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/andreychh/snippetbox/internal/domain"
 	"github.com/andreychh/snippetbox/internal/storage"
@@ -37,10 +36,9 @@ func (a *App) home(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
-	var idStr = request.PathValue("id")
-	var id, err = strconv.ParseInt(idStr, 10, 64)
-	if err != nil || id < 1 {
-		err = fmt.Errorf("invalid ID: %s. Must be a positive integer", idStr)
+	var id, err = domain.ParseSnippetID(request)
+	if err != nil {
+		err = fmt.Errorf("parsing snippet ID: %w", err)
 		a.notFound(writer, request, err)
 		return
 	}
@@ -59,7 +57,7 @@ func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
 	var templateData = templates.NewTemplateData(templates.WithSnippet(snippet))
 	pageContent, err := a.templateRenderer.SnippetViewPage(templateData)
 	if err != nil {
-		err = fmt.Errorf("rendering snippet view page: %w", err)
+		err = fmt.Errorf("rendering snippet-view page: %w", err)
 		a.internalServerError(writer, request, err)
 		return
 	}
@@ -74,16 +72,52 @@ func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (a *App) snippetCreate(writer http.ResponseWriter, request *http.Request) {
-	writer.Write([]byte("Display a form for creating a new snippet...\n"))
+	var templateData = templates.NewTemplateData(templates.WithForm(domain.SnippetCreateForm{Expires: 365}))
+	var pageContent, err = a.templateRenderer.SnippetCreatePage(templateData)
+	if err != nil {
+		err = fmt.Errorf("rendering snippet-create page: %w", err)
+		a.internalServerError(writer, request, err)
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+	n, err := writer.Write(pageContent)
+	if err != nil {
+		err = fmt.Errorf("writing response (bytes written: %d): %w", n, err)
+		a.internalServerError(writer, request, err)
+		return
+	}
 }
 
 func (a *App) snippetCreatePost(writer http.ResponseWriter, request *http.Request) {
-	title := "O snail"
-	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
-	expires := 7
+	var form, err = domain.ParseSnippetCreateForm(request)
+	if err != nil {
+		err = fmt.Errorf("parsing form: %w", err)
+		a.internalServerError(writer, request, err)
+		return
+	}
 
-	var snippet = domain.NewSnippet(title, content, expires)
-	var err = a.storage.Snippets().Add(&snippet)
+	if !form.Valid() {
+		var templateData = templates.NewTemplateData(templates.WithForm(form))
+		var pageContent, err = a.templateRenderer.SnippetCreatePage(templateData)
+		if err != nil {
+			err = fmt.Errorf("rendering snippet-create page: %w", err)
+			a.internalServerError(writer, request, err)
+			return
+		}
+
+		writer.WriteHeader(http.StatusUnprocessableEntity)
+		n, err := writer.Write(pageContent)
+		if err != nil {
+			err = fmt.Errorf("writing response (bytes written: %d): %w", n, err)
+			a.internalServerError(writer, request, err)
+			return
+		}
+		return
+	}
+
+	var snippet = domain.NewSnippet(form.Title, form.Content, form.Expires)
+	err = a.storage.Snippets().Add(&snippet)
 	if err != nil {
 		err = fmt.Errorf("adding snippet: %w", err)
 		a.internalServerError(writer, request, err)

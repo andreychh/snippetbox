@@ -33,7 +33,7 @@ func newTemplateCache() (TemplateCache, error) {
 
 	for _, page := range pages {
 		var name = filepath.Base(page)
-		var templateSet = template.New(name).Funcs(functions)
+		var templateSet = template.New(name).Funcs(templateFuncs)
 
 		templateSet, err = templateSet.ParseFiles("./web/html/base.gohtml")
 		if err != nil {
@@ -47,7 +47,7 @@ func newTemplateCache() (TemplateCache, error) {
 
 		templateSet, err = templateSet.ParseFiles(page)
 		if err != nil {
-			return nil, fmt.Errorf("parsing page template %s: %w", name, err)
+			return nil, fmt.Errorf("parsing file %q: %w", page, err)
 		}
 
 		cache[name] = templateSet
@@ -62,6 +62,10 @@ func (r Renderer) HomePage(data TemplateData) ([]byte, error) {
 
 func (r Renderer) SnippetViewPage(data TemplateData) ([]byte, error) {
 	return r.renderTemplate("view.gohtml", data)
+}
+
+func (r Renderer) SnippetCreatePage(data TemplateData) ([]byte, error) {
+	return r.renderTemplate("create.gohtml", data)
 }
 
 func (r Renderer) renderTemplate(page string, data TemplateData) ([]byte, error) {
