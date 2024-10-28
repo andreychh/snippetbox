@@ -16,12 +16,12 @@ type Renderer struct {
 	templateCache TemplateCache
 }
 
-func NewRenderer() (Renderer, error) {
+func NewRenderer() (*Renderer, error) {
 	cache, err := newTemplateCache()
 	if err != nil {
-		return Renderer{}, fmt.Errorf("creating template cache: %w", err)
+		return nil, fmt.Errorf("creating template cache: %w", err)
 	}
-	return Renderer{templateCache: cache}, nil
+	return &Renderer{templateCache: cache}, nil
 }
 
 func newTemplateCache() (TemplateCache, error) {

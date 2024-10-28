@@ -7,6 +7,7 @@ import (
 	"github.com/andreychh/snippetbox/internal/application"
 	cfg "github.com/andreychh/snippetbox/internal/config"
 	log "github.com/andreychh/snippetbox/internal/logger"
+	"github.com/andreychh/snippetbox/internal/session"
 	"github.com/andreychh/snippetbox/internal/storage/mysql"
 	"github.com/andreychh/snippetbox/internal/templates"
 )
@@ -29,7 +30,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	var app = application.New(logger, storage, templateRenderer)
+	var sessionManager = session.NewManager(storage)
+
+	var app = application.New(logger, storage, templateRenderer, sessionManager)
 
 	logger.Info("starting server", "address", config.App.Addr())
 	err = http.ListenAndServe(config.App.Addr(), app.Routes())

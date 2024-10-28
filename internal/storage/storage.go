@@ -5,6 +5,8 @@ import (
 	"io"
 
 	"github.com/andreychh/snippetbox/internal/domain"
+
+	"github.com/alexedwards/scs/v2"
 )
 
 var (
@@ -14,6 +16,7 @@ var (
 type Storage interface {
 	io.Closer
 	Snippets() SnippetStorage
+	Sessions() scs.Store
 }
 
 type SnippetStorage interface {

@@ -57,7 +57,8 @@ func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	var templateData = templates.NewTemplateData(templates.WithSnippet(snippet))
+	var flash = a.sessionManager.PopString(request.Context(), "flash")
+	var templateData = templates.NewTemplateData(templates.WithSnippet(snippet), templates.WithFlash(flash))
 	pageContent, err := a.templateRenderer.SnippetViewPage(templateData)
 	if err != nil {
 		err = fmt.Errorf("rendering snippet-view page: %w", err)
@@ -127,5 +128,6 @@ func (a *App) snippetCreatePost(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 
+	a.sessionManager.Put(request.Context(), "flash", "Snippet successfully created!")
 	http.Redirect(writer, request, fmt.Sprintf("/snippet/view/%d", snippet.ID), http.StatusSeeOther)
 }

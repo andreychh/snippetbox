@@ -8,6 +8,8 @@ import (
 	"github.com/andreychh/snippetbox/internal/domain"
 	"github.com/andreychh/snippetbox/internal/storage"
 
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -28,15 +30,6 @@ func openDB(dataSourceName string) (*sql.DB, error) {
 	return db, err
 }
 
-type Storage struct {
-	db       *sql.DB
-	snippets SnippetStorage
-}
-
-func (s Storage) Snippets() storage.SnippetStorage {
-	return s.snippets
-}
-
 func New(dataSourceName string) (Storage, error) {
 	var db, err = openDB(dataSourceName)
 	if err != nil {
@@ -46,7 +39,22 @@ func New(dataSourceName string) (Storage, error) {
 	return Storage{
 		db:       db,
 		snippets: SnippetStorage{db: db},
+		sessions: mysqlstore.New(db),
 	}, nil
+}
+
+type Storage struct {
+	db       *sql.DB
+	snippets SnippetStorage
+	sessions *mysqlstore.MySQLStore
+}
+
+func (s Storage) Snippets() storage.SnippetStorage {
+	return s.snippets
+}
+
+func (s Storage) Sessions() scs.Store {
+	return s.sessions
 }
 
 func (s Storage) Close() error {

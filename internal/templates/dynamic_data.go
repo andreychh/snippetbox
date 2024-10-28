@@ -27,13 +27,19 @@ func WithForm(form domain.SnippetCreateForm) Option {
 	}
 }
 
+func WithFlash(flash string) Option {
+	return func(data *TemplateData) {
+		data.Flash = flash
+	}
+}
+
 type TemplateData struct {
 	CurrentYear int
 
-	Snippet  domain.Snippet
-	Snippets []domain.Snippet
-
+	Snippet           domain.Snippet
+	Snippets          []domain.Snippet
 	SnippetCreateForm domain.SnippetCreateForm
+	Flash             string
 }
 
 func NewTemplateData(opts ...Option) TemplateData {
