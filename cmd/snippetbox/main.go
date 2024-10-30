@@ -9,7 +9,7 @@ import (
 	log "github.com/andreychh/snippetbox/internal/logger"
 	"github.com/andreychh/snippetbox/internal/session"
 	"github.com/andreychh/snippetbox/internal/storage/mysql"
-	"github.com/andreychh/snippetbox/internal/templates"
+	"github.com/andreychh/snippetbox/internal/template"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 	}
 	defer storage.Close()
 
-	templateRenderer, err := templates.NewRenderer()
+	templateRenderer, err := template.NewRenderer()
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)

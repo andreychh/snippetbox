@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/andreychh/snippetbox/internal/storage"
-	"github.com/andreychh/snippetbox/internal/templates"
+	"github.com/andreychh/snippetbox/internal/template"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/justinas/alice"
@@ -14,14 +14,14 @@ import (
 type App struct {
 	logger           *slog.Logger
 	storage          storage.Storage
-	templateRenderer *templates.Renderer
+	templateRenderer *template.Renderer
 	sessionManager   *scs.SessionManager
 }
 
 func New(
 	logger *slog.Logger,
 	storage storage.Storage,
-	templateRenderer *templates.Renderer,
+	templateRenderer *template.Renderer,
 	sessionManager *scs.SessionManager,
 ) *App {
 	return &App{

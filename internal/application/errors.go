@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/andreychh/snippetbox/internal/templates"
+	"github.com/andreychh/snippetbox/internal/template"
 )
 
 func (a *App) internalServerError(writer http.ResponseWriter, request *http.Request, err error) {
@@ -29,7 +29,7 @@ func (a *App) notFound(writer http.ResponseWriter, request *http.Request) {
 		slog.String("uri", request.RequestURI),
 	)
 
-	var pageContent, err = a.templateRenderer.NotFoundPage(templates.NewTemplateData())
+	var pageContent, err = a.templateRenderer.RenderPage(template.PageNotFound, template.NewData())
 	if err != nil {
 		err = fmt.Errorf("rendering not-found page: %w", err)
 		a.internalServerError(writer, request, err)

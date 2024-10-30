@@ -8,7 +8,7 @@ import (
 	"unicode/utf8"
 )
 
-type SnippetCreateForm struct {
+type Form struct {
 	Title   string
 	Content string
 	Expires int
@@ -16,17 +16,17 @@ type SnippetCreateForm struct {
 	FieldErrors map[string]string
 }
 
-func NewSnippetCreateForm(title string, content string, expires int) SnippetCreateForm {
-	var form = SnippetCreateForm{Title: title, Content: content, Expires: expires}
+func NewSnippetCreateForm(title string, content string, expires int) Form {
+	form := Form{Title: title, Content: content, Expires: expires}
 	form.setFieldErrors()
 	return form
 }
 
-func (f *SnippetCreateForm) Valid() bool {
+func (f *Form) Valid() bool {
 	return len(f.FieldErrors) == 0
 }
 
-func (f *SnippetCreateForm) setFieldErrors() {
+func (f *Form) setFieldErrors() {
 	f.FieldErrors = make(map[string]string)
 
 	if strings.TrimSpace(f.Title) == "" {
@@ -44,21 +44,18 @@ func (f *SnippetCreateForm) setFieldErrors() {
 	}
 }
 
-func ParseSnippetCreateForm(request *http.Request) (SnippetCreateForm, error) {
-	var err = request.ParseForm()
+func ParseSnippetCreateForm(request *http.Request) (Form, error) {
+	err := request.ParseForm()
 	if err != nil {
-		return SnippetCreateForm{}, fmt.Errorf("parsing form data: %w", err)
+		return Form{}, fmt.Errorf("parsing form data: %w", err)
 	}
 
-	var (
-		title      = strings.TrimSpace(request.PostForm.Get("title"))
-		content    = strings.TrimSpace(request.PostForm.Get("content"))
-		expiresStr = request.PostForm.Get("expires")
-	)
-
+	title := strings.TrimSpace(request.PostForm.Get("title"))
+	content := strings.TrimSpace(request.PostForm.Get("content"))
+	expiresStr := request.PostForm.Get("expires")
 	expires, err := strconv.Atoi(expiresStr)
 	if err != nil {
-		return SnippetCreateForm{}, fmt.Errorf("parsing expiration value '%s': %w", expiresStr, err)
+		return Form{}, fmt.Errorf("parsing expiration value '%s': %w", expiresStr, err)
 	}
 
 	return NewSnippetCreateForm(title, content, expires), nil

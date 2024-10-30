@@ -16,8 +16,8 @@ type Snippet struct {
 }
 
 func NewSnippet(title string, content string, expirationDays int) Snippet {
-	var currentTime = time.Now().UTC()
-	var expirationTime = currentTime.AddDate(0, 0, expirationDays)
+	currentTime := time.Now().UTC()
+	expirationTime := currentTime.AddDate(0, 0, expirationDays)
 
 	return Snippet{
 		Title:   title,
@@ -28,8 +28,8 @@ func NewSnippet(title string, content string, expirationDays int) Snippet {
 }
 
 func ParseSnippetID(request *http.Request) (int64, error) {
-	var idStr = request.PathValue("id")
-	var id, err = strconv.ParseInt(idStr, 10, 64)
+	idStr := request.PathValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		return 0, fmt.Errorf("parsing id '%s': %w", idStr, err)
 	}

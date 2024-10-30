@@ -8,7 +8,7 @@ import (
 
 	"github.com/andreychh/snippetbox/internal/domain"
 	"github.com/andreychh/snippetbox/internal/storage"
-	"github.com/andreychh/snippetbox/internal/templates"
+	"github.com/andreychh/snippetbox/internal/template"
 )
 
 func (a *App) home(writer http.ResponseWriter, request *http.Request) {
@@ -19,8 +19,8 @@ func (a *App) home(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	var templateData = templates.NewTemplateData(templates.WithSnippets(snippets))
-	pageContent, err := a.templateRenderer.HomePage(templateData)
+	var templateData = template.NewData(template.WithSnippets(snippets))
+	pageContent, err := a.templateRenderer.RenderPage(template.PageHome, templateData)
 	if err != nil {
 		err = fmt.Errorf("rendering home page: %w", err)
 		a.internalServerError(writer, request, err)
@@ -58,8 +58,8 @@ func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	var flash = a.sessionManager.PopString(request.Context(), "flash")
-	var templateData = templates.NewTemplateData(templates.WithSnippet(snippet), templates.WithFlash(flash))
-	pageContent, err := a.templateRenderer.SnippetViewPage(templateData)
+	var templateData = template.NewData(template.WithSnippet(snippet), template.WithFlash(flash))
+	pageContent, err := a.templateRenderer.RenderPage(template.PageView, templateData)
 	if err != nil {
 		err = fmt.Errorf("rendering snippet-view page: %w", err)
 		a.internalServerError(writer, request, err)
@@ -76,8 +76,8 @@ func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (a *App) snippetCreate(writer http.ResponseWriter, request *http.Request) {
-	var templateData = templates.NewTemplateData(templates.WithForm(domain.SnippetCreateForm{Expires: 365}))
-	var pageContent, err = a.templateRenderer.SnippetCreatePage(templateData)
+	var templateData = template.NewData(template.WithForm(domain.Form{Expires: 365}))
+	var pageContent, err = a.templateRenderer.RenderPage(template.PageCreate, templateData)
 	if err != nil {
 		err = fmt.Errorf("rendering snippet-create page: %w", err)
 		a.internalServerError(writer, request, err)
@@ -102,8 +102,8 @@ func (a *App) snippetCreatePost(writer http.ResponseWriter, request *http.Reques
 	}
 
 	if !form.Valid() {
-		var templateData = templates.NewTemplateData(templates.WithForm(form))
-		var pageContent, err = a.templateRenderer.SnippetCreatePage(templateData)
+		var templateData = template.NewData(template.WithForm(form))
+		var pageContent, err = a.templateRenderer.RenderPage(template.PageCreate, templateData)
 		if err != nil {
 			err = fmt.Errorf("rendering snippet-create page: %w", err)
 			a.internalServerError(writer, request, err)
