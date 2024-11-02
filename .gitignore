@@ -1,4 +1,4 @@
-### Go template
+### Go
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -15,8 +15,8 @@
 # Go workspace file
 go.work
 
-### GoLand template
-# User-specific stuff
+### GoLand
+# User-specific files
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
@@ -38,45 +38,27 @@ go.work
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
 
-# Gradle
-.idea/**/gradle.xml
-.idea/**/libraries
-
-# CMake
-cmake-build-*/
-
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml
 
 # File-based project format
 *.iws
 
-# IntelliJ
+# Generated files
 out/
-
-# mpeltonen/sbt-idea plugin
-.idea_modules/
 
 # JIRA plugin
 atlassian-ide-plugin.xml
 
-# Cursive Clojure plugin
-.idea/replstate.xml
-
 # SonarLint plugin
 .idea/sonarlint/
-
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
 
-# Android studio 3.1+ serialized cache file
-.idea/caches/build_file_checksums.ser
+### Custom
+# Local certificates
+certs/
 
 # Drafts and experimental files
 drafts/
@@ -85,4 +67,4 @@ drafts/
 configs/*
 
 # Keep the example config file
-!configs/config.example.yaml
+!configs/example.yaml
