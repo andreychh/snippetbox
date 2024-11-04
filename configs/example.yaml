@@ -1,15 +1,28 @@
-envName:
+server:
+  host: 'localhost'                 # Server host
+  port: 8080                        # Server port
+  log-level: error                  # Logging level (info, debug, warn, error, ...)
+  idle-timeout: 120s                # Idle timeout duration
+  read-timeout: 5s                  # Request read timeout duration
+  write-timeout: 5s                 # Response write timeout duration
+  cert-path: '/path/to/cert.pem'    # Path to the TLS certificate
+  key-path: '/path/to/key.pem'      # Path to the TLS private key
+
 database:
-  user:
-  password:
-  protocol:
-  host:
-  port:
-  name:
+  user: 'user'        # Database user
+  password: 'pass'    # Database password
+  name: 'name'        # Database name
+  protocol: 'tcp'     # Connection protocol
+  host: '0.0.0.0'     # Database host
+  port: 5432          # Database port
   params:
-    parseTime:
-app:
-  host:
-  port:
+    parseTime: true    # Parse MySQL datetime values as time.Time instead of strings
+
+session:
+  lifetime: 1h    # Session lifetime
+
 logging:
-  level:
+  writer: 'stdout'     # Output type (stdout)
+  handler: 'json'      # Handler type (text, json)
+  level: info          # Logging level (info, debug, warn, error, ...)
+  add-source: false    # Whether to add source information

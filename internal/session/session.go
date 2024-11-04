@@ -1,14 +1,16 @@
 package session
 
 import (
-	"github.com/alexedwards/scs/v2"
+	cfg "github.com/andreychh/snippetbox/internal/config"
 	"github.com/andreychh/snippetbox/internal/storage"
-	"time"
+
+	"github.com/alexedwards/scs/v2"
 )
 
-func NewManager(storage storage.Storage) *scs.SessionManager {
-	var sessionManager = scs.New()
+func NewManager(config cfg.Session, storage storage.Storage) *scs.SessionManager {
+	sessionManager := scs.New()
 	sessionManager.Store = storage.Sessions()
-	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Lifetime = config.Lifetime
+	sessionManager.Cookie.Secure = true
 	return sessionManager
 }

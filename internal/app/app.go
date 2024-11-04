@@ -1,9 +1,9 @@
-package application
+package app
 
 import (
-	"log/slog"
 	"net/http"
 
+	log "github.com/andreychh/snippetbox/internal/logger"
 	"github.com/andreychh/snippetbox/internal/storage"
 	"github.com/andreychh/snippetbox/internal/template"
 
@@ -12,14 +12,14 @@ import (
 )
 
 type App struct {
-	logger           *slog.Logger
+	logger           *log.Logger
 	storage          storage.Storage
 	templateRenderer *template.Renderer
 	sessionManager   *scs.SessionManager
 }
 
 func New(
-	logger *slog.Logger,
+	logger *log.Logger,
 	storage storage.Storage,
 	templateRenderer *template.Renderer,
 	sessionManager *scs.SessionManager,

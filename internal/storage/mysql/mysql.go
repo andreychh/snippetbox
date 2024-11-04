@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	cfg "github.com/andreychh/snippetbox/internal/config"
 	"github.com/andreychh/snippetbox/internal/domain"
 	"github.com/andreychh/snippetbox/internal/storage"
 
@@ -20,18 +21,17 @@ func openDB(dataSourceName string) (*sql.DB, error) {
 	}
 
 	if err = db.Ping(); err != nil {
-		var closeErr = db.Close()
-		if closeErr != nil {
-			return nil, fmt.Errorf("pinging database: %w, closing connection: %w", err, closeErr)
+		err = fmt.Errorf("pinging database: %w", err)
+		if closeErr := db.Close(); closeErr != nil {
+			return nil, errors.Join(err, fmt.Errorf("closing connection: %w", closeErr))
 		}
-		return nil, fmt.Errorf("pinging database: %w", err)
+		return nil, err
 	}
-
-	return db, err
+	return db, nil
 }
 
-func New(dataSourceName string) (Storage, error) {
-	var db, err = openDB(dataSourceName)
+func New(config cfg.Database) (Storage, error) {
+	var db, err = openDB(config.DSN())
 	if err != nil {
 		return Storage{}, err
 	}
@@ -127,7 +127,12 @@ func (s SnippetStorage) Latest() ([]domain.Snippet, error) {
 	if err != nil {
 		return nil, fmt.Errorf("querying snippets: %w", err)
 	}
-	defer rows.Close()
+
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("closing rows: %w", closeErr))
+		}
+	}()
 
 	snippets, err := s.scanSnippets(rows)
 	if err != nil {
