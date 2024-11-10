@@ -3,44 +3,35 @@ package app
 import (
 	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 
 	"github.com/andreychh/snippetbox/internal/domain"
+	log "github.com/andreychh/snippetbox/internal/logger"
 	"github.com/andreychh/snippetbox/internal/storage"
 	"github.com/andreychh/snippetbox/internal/template"
 )
 
 func (a *App) home(writer http.ResponseWriter, request *http.Request) {
-	var snippets, err = a.storage.Snippets().Latest()
+	snippets, err := a.storage.Snippets().Latest()
 	if err != nil {
 		err = fmt.Errorf("fetching latest snippets: %w", err)
 		a.internalServerError(writer, request, err)
 		return
 	}
 
-	var templateData = template.NewData(template.WithSnippets(snippets))
-	pageContent, err := a.templateRenderer.RenderPage(template.PageHome, templateData)
+	data := template.NewData(template.WithSnippets(snippets))
+	err = a.writeResponse(writer, template.PageHome, data, http.StatusOK)
 	if err != nil {
-		err = fmt.Errorf("rendering home page: %w", err)
-		a.internalServerError(writer, request, err)
-		return
-	}
-
-	writer.WriteHeader(http.StatusOK)
-	n, err := writer.Write(pageContent)
-	if err != nil {
-		err = fmt.Errorf("writing response (bytes written: %d): %w", n, err)
+		err = fmt.Errorf("writing response: %w", err)
 		a.internalServerError(writer, request, err)
 		return
 	}
 }
 
 func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
-	var id, err = domain.ParseSnippetID(request)
+	id, err := domain.ParseSnippetID(request)
 	if err != nil {
-		err = fmt.Errorf("parsing snippet ID: %w", err)
-		a.logger.Error("error occurred", slog.String("error", err.Error()))
+		a.logger.Error("error occurred", log.Error(fmt.Errorf("parsing snippet ID: %w", err)))
 		a.notFound(writer, request)
 		return
 	}
@@ -49,7 +40,7 @@ func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		err = fmt.Errorf("fetching snippet by ID %d: %w", id, err)
 		if errors.Is(err, storage.ErrNoRecord) {
-			a.logger.Error("error occurred", slog.String("error", err.Error()))
+			a.logger.Error("error occurred", log.Error(err))
 			a.notFound(writer, request)
 		} else {
 			a.internalServerError(writer, request, err)
@@ -57,44 +48,28 @@ func (a *App) snippetView(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	var flash = a.sessionManager.PopString(request.Context(), "flash")
-	var templateData = template.NewData(template.WithSnippet(snippet), template.WithFlash(flash))
-	pageContent, err := a.templateRenderer.RenderPage(template.PageView, templateData)
+	flash := a.sessionManager.PopString(request.Context(), "flash")
+	data := template.NewData(template.WithSnippet(snippet), template.WithFlash(flash))
+	err = a.writeResponse(writer, template.PageView, data, http.StatusOK)
 	if err != nil {
-		err = fmt.Errorf("rendering snippet-view page: %w", err)
-		a.internalServerError(writer, request, err)
-		return
-	}
-
-	writer.WriteHeader(http.StatusOK)
-	n, err := writer.Write(pageContent)
-	if err != nil {
-		err = fmt.Errorf("writing response (bytes written: %d): %w", n, err)
+		err = fmt.Errorf("writing response: %w", err)
 		a.internalServerError(writer, request, err)
 		return
 	}
 }
 
 func (a *App) snippetCreate(writer http.ResponseWriter, request *http.Request) {
-	var templateData = template.NewData(template.WithForm(domain.Form{Expires: 365}))
-	var pageContent, err = a.templateRenderer.RenderPage(template.PageCreate, templateData)
+	data := template.NewData(template.WithForm(domain.Form{Expires: 365}))
+	err := a.writeResponse(writer, template.PageCreate, data, http.StatusOK)
 	if err != nil {
-		err = fmt.Errorf("rendering snippet-create page: %w", err)
-		a.internalServerError(writer, request, err)
-		return
-	}
-
-	writer.WriteHeader(http.StatusOK)
-	n, err := writer.Write(pageContent)
-	if err != nil {
-		err = fmt.Errorf("writing response (bytes written: %d): %w", n, err)
+		err = fmt.Errorf("writing response: %w", err)
 		a.internalServerError(writer, request, err)
 		return
 	}
 }
 
 func (a *App) snippetCreatePost(writer http.ResponseWriter, request *http.Request) {
-	var form, err = domain.ParseSnippetCreateForm(request)
+	form, err := domain.ParseSnippetCreateForm(request)
 	if err != nil {
 		err = fmt.Errorf("parsing form: %w", err)
 		a.internalServerError(writer, request, err)
@@ -102,25 +77,17 @@ func (a *App) snippetCreatePost(writer http.ResponseWriter, request *http.Reques
 	}
 
 	if !form.Valid() {
-		var templateData = template.NewData(template.WithForm(form))
-		var pageContent, err = a.templateRenderer.RenderPage(template.PageCreate, templateData)
+		data := template.NewData(template.WithForm(form))
+		err = a.writeResponse(writer, template.PageCreate, data, http.StatusUnprocessableEntity)
 		if err != nil {
-			err = fmt.Errorf("rendering snippet-create page: %w", err)
-			a.internalServerError(writer, request, err)
-			return
-		}
-
-		writer.WriteHeader(http.StatusUnprocessableEntity)
-		n, err := writer.Write(pageContent)
-		if err != nil {
-			err = fmt.Errorf("writing response (bytes written: %d): %w", n, err)
+			err = fmt.Errorf("writing response: %w", err)
 			a.internalServerError(writer, request, err)
 			return
 		}
 		return
 	}
 
-	var snippet = domain.NewSnippet(form.Title, form.Content, form.Expires)
+	snippet := domain.NewSnippet(form.Title, form.Content, form.Expires)
 	err = a.storage.Snippets().Add(&snippet)
 	if err != nil {
 		err = fmt.Errorf("adding snippet: %w", err)

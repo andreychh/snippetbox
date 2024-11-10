@@ -29,17 +29,9 @@ func (a *App) notFound(writer http.ResponseWriter, request *http.Request) {
 		slog.String("uri", request.RequestURI),
 	)
 
-	var pageContent, err = a.templateRenderer.RenderPage(template.PageNotFound, template.NewData())
+	err := a.writeResponse(writer, template.PageNotFound, template.NewData(), http.StatusNotFound)
 	if err != nil {
-		err = fmt.Errorf("rendering not-found page: %w", err)
-		a.internalServerError(writer, request, err)
-		return
-	}
-
-	writer.WriteHeader(http.StatusNotFound)
-	n, err := writer.Write(pageContent)
-	if err != nil {
-		err = fmt.Errorf("writing response (bytes written: %d): %w", n, err)
+		err = fmt.Errorf("writing response: %w", err)
 		a.internalServerError(writer, request, err)
 		return
 	}

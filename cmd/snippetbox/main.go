@@ -31,7 +31,7 @@ func main() {
 	}
 	defer func() {
 		if err := storage.Close(); err != nil {
-			logger.Error("failed to close database connection", log.Error(err))
+			logger.Error("failed to close storage", log.Error(err))
 		}
 	}()
 

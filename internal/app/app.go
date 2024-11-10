@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 
 	log "github.com/andreychh/snippetbox/internal/logger"
@@ -47,4 +48,17 @@ func (a *App) Routes() http.Handler {
 	mux.Handle("POST /snippet/create", dynamic.ThenFunc(a.snippetCreatePost))
 
 	return general.Then(mux)
+}
+
+func (a *App) writeResponse(writer http.ResponseWriter, page template.Page, data template.Data, statusCode int) error {
+	content, err := a.templateRenderer.RenderPage(page, data)
+	if err != nil {
+		return fmt.Errorf("rendering page %q: %w", page, err)
+	}
+	writer.WriteHeader(statusCode)
+	n, err := writer.Write(content)
+	if err != nil {
+		return fmt.Errorf("writing page (bytes written: %d): %w", n, err)
+	}
+	return nil
 }
